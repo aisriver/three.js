@@ -195,7 +195,71 @@ const builds = [
 				indent: '\t'
 			}
 		]
-	}
+	},
+	// 新增 umd 打包
+	{
+		input: {
+			'three.core.umd.min.js': 'src/Three.Core.js',
+		},
+		plugins: [
+			glsl(),
+			header(),
+			terser()
+		],
+		preserveEntrySignatures: 'allow-extension',
+		output: [
+			{
+				format: 'umd',
+				dir: 'build',
+				minifyInternalExports: false,
+				entryFileNames: '[name]',
+				name: 'THREE',
+  				inlineDynamicImports: true,
+			}
+		]
+	},
+	{
+		input: {
+			'three.webgpu.umd.min.js': 'src/Three.WebGPU.js',
+		},
+		plugins: [
+			glsl(),
+			header(),
+			terser()
+		],
+		preserveEntrySignatures: 'allow-extension',
+		output: [
+			{
+				format: 'umd',
+				dir: 'build',
+				minifyInternalExports: false,
+				entryFileNames: '[name]',
+				name: 'THREE_GPU',
+  				inlineDynamicImports: true,
+			}
+		]
+	},
+	{
+		input: {
+			'three.tsl.umd.min.js': 'src/Three.TSL.js'
+		},
+		plugins: [
+			header(),
+			terser()
+		],
+		preserveEntrySignatures: 'allow-extension',
+		output: [
+			{
+				format: 'umd',
+				dir: 'build',
+				minifyInternalExports: false,
+				entryFileNames: '[name]',
+				name: 'THREE_GPU_TSL',
+  				inlineDynamicImports: true,
+			}
+		],
+		external: [ 'three/webgpu' ]
+	},
 ];
 
 export default ( args ) => args.configOnlyModule ? builds.slice( 0, 4 ) : builds;
