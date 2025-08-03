@@ -1,4 +1,5 @@
-import { TSL } from 'three/webgpu';
+// import { TSL } from 'three/webgpu';
+const { TSL } = globalThis.THREE;
 
 export const BRDF_GGX = TSL.BRDF_GGX;
 export const BRDF_Lambert = TSL.BRDF_Lambert;

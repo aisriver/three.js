@@ -67,7 +67,7 @@ const builds = [
 	// 新增 umd 打包
 	{
 		input: {
-			'three.core.umd.min.js': 'src/Three.Core.js',
+			'three.min.js': 'src/Three.js',
 		},
 		plugins: [
 			glsl(),
@@ -102,7 +102,7 @@ const builds = [
 				dir: 'umd',
 				minifyInternalExports: false,
 				entryFileNames: '[name]',
-				name: 'THREE_GPU',
+				name: 'THREE',
   				inlineDynamicImports: true,
 			}
 		]
@@ -126,7 +126,7 @@ const builds = [
   				inlineDynamicImports: true,
 			}
 		],
-		external: [ 'three/webgpu' ]
+		// external: [ 'three/webgpu' ]
 	},
 ];
 
