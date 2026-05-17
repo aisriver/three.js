@@ -48,6 +48,7 @@
     "build": "rollup -c utils/build/rollup.config.js",
     "build-docs": "jsdoc -c utils/docs/jsdoc.config.json && npm run build-llms",
     "build-llms": "node utils/llms/build.js",
+    "build-umd": "rollup -c utils/build/rollup.umd.config.js",
     "build-module": "rollup -c utils/build/rollup.config.js --configOnlyModule",
     "dev": "node utils/build/dev.js && node utils/server.js -p 8080",
     "preview": "node utils/build/preview.js",
