@@ -132,12 +132,22 @@ class Geometries extends DataMap {
 		this.attributeCall = new WeakMap();
 
 		/**
-		 * Stores the event listeners attached to geometries.
+		 * Stores weak references to the geometries with attached
+		 * `dispose` event listeners.
 		 *
 		 * @private
-		 * @type {Map<BufferGeometry,Function>}
+		 * @type {Set<WeakRef<BufferGeometry>>}
 		 */
-		this._geometryDisposeListeners = new Map();
+		this._tracked = new Set();
+
+		/**
+		 * Removes weak references from `_tracked` when their geometry
+		 * has been garbage collected without an explicit `dispose()`.
+		 *
+		 * @private
+		 * @type {FinalizationRegistry}
+		 */
+		this._registry = new FinalizationRegistry( ( ref ) => this._tracked.delete( ref ) );
 
 	}
 
@@ -182,12 +192,13 @@ class Geometries extends DataMap {
 
 		this.info.memory.geometries ++;
 
-		const onDispose = () => {
+		geometryData.onDispose = () => {
 
 			this.info.memory.geometries --;
 
+			// index
+
 			const index = geometry.index;
-			const geometryAttributes = renderObject.getAttributes();
 
 			if ( index !== null ) {
 
@@ -195,11 +206,15 @@ class Geometries extends DataMap {
 
 			}
 
-			for ( const geometryAttribute of geometryAttributes ) {
+			// geometry attributes
 
-				this.attributes.delete( geometryAttribute );
+			for ( const attribute of Object.values( geometry.attributes ) ) {
+
+				this.attributes.delete( attribute );
 
 			}
+
+			// wireframe attributes
 
 			const wireframeAttribute = this.wireframes.get( geometry );
 
@@ -209,17 +224,36 @@ class Geometries extends DataMap {
 
 			}
 
-			geometry.removeEventListener( 'dispose', onDispose );
+			// node attributes (TODO: Remove this bit once we support BufferAttribute.dispose())
 
-			this._geometryDisposeListeners.delete( geometry );
+			const currentAttributes = new Set( Object.values( renderObject.geometry.attributes ) );
+
+			for ( const attribute of renderObject.getAttributes() ) {
+
+				if ( currentAttributes.has( attribute ) === false ) {
+
+					this.attributes.delete( attribute );
+
+				}
+
+			}
+
+			//
+
+			geometry.removeEventListener( 'dispose', geometryData.onDispose );
+
+			this._tracked.delete( geometryData.ref );
+			this._registry.unregister( geometryData.ref );
 
 		};
 
-		geometry.addEventListener( 'dispose', onDispose );
+		geometry.addEventListener( 'dispose', geometryData.onDispose );
 
 		// see #31798 why tracking separate remove listeners is required right now
-		// TODO: Re-evaluate how onDispose() is managed in this component
-		this._geometryDisposeListeners.set( geometry, onDispose );
+		geometryData.ref = new WeakRef( geometry );
+
+		this._tracked.add( geometryData.ref );
+		this._registry.register( geometry, geometryData.ref, geometryData.ref );
 
 	}
 
@@ -379,15 +413,24 @@ class Geometries extends DataMap {
 
 	}
 
+	/**
+	 * Frees internal resources.
+	 */
 	dispose() {
 
-		for ( const [ geometry, onDispose ] of this._geometryDisposeListeners.entries() ) {
+		for ( const ref of this._tracked ) {
 
-			geometry.removeEventListener( 'dispose', onDispose );
+			const geometry = ref.deref();
+
+			if ( geometry === undefined ) continue;
+
+			geometry.removeEventListener( 'dispose', this.get( geometry ).onDispose );
 
 		}
 
-		this._geometryDisposeListeners.clear();
+		this._tracked.clear();
+
+		super.dispose();
 
 	}
 

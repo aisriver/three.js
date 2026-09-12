@@ -186,7 +186,7 @@ function Loader( editor ) {
 					const { Rhino3dmLoader } = await import( 'three/addons/loaders/3DMLoader.js' );
 
 					const loader = new Rhino3dmLoader();
-					loader.setLibraryPath( '../examples/jsm/libs/rhino3dm/' );
+					loader.setLibraryPath( 'https://cdn.jsdelivr.net/npm/rhino3dm@8.32.1/' );
 					loader.parse( contents, function ( object ) {
 
 						object.name = filename;
@@ -780,10 +780,12 @@ function Loader( editor ) {
 					const { USDLoader } = await import( 'three/addons/loaders/USDLoader.js' );
 
 					const loader = new USDLoader( manager );
-					const group = loader.parse( contents );
-					group.name = filename;
+					loader.parse( contents, '', function ( group ) {
 
-					editor.execute( new AddObjectCommand( editor, group ) );
+						group.name = filename;
+						editor.execute( new AddObjectCommand( editor, group ) );
+
+					} );
 
 				}, false );
 				reader.readAsArrayBuffer( file );

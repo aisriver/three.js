@@ -11,6 +11,12 @@ More references:
 *   [http://simonwallner.at/project/atmospheric-scattering/](http://simonwallner.at/project/atmospheric-scattering/)
 *   [http://blenderartists.org/forum/showthread.php?245954-preethams-sky-impementation-HDR](http://blenderartists.org/forum/showthread.php?245954-preethams-sky-impementation-HDR)
 
+```js
+const sky = new Sky();
+sky.scale.setScalar( 10000 );
+scene.add( sky );
+```
+
 It can be useful to hide the sun disc when generating an environment map to avoid artifacts
 
 ```js
@@ -21,17 +27,9 @@ sky.material.uniforms.showSunDisc.value = false;
 sky.material.uniforms.showSunDisc.value = true;
 ```
 
-## Code Example
-
-```js
-const sky = new Sky();
-sky.scale.setScalar( 10000 );
-scene.add( sky );
-```
-
 ## Import
 
-Sky is an addon, and must be imported explicitly, see [Installation#Addons](https://threejs.org/manual/#en/installation).
+Sky is an addon, and must be imported explicitly, see [Installation#Addons](https://threejs.org/manual/#installation#addons).
 
 ```js
 import { Sky } from 'three/addons/objects/Sky.js';
